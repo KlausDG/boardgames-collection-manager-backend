@@ -35,3 +35,8 @@ model Boardgame {
 
   @@map("boardgames")
 }
+
+model Designer {
+  id   Int    @id @default(autoincrement())
+  name String
+}
