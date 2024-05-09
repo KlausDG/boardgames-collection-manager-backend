@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class EditBoardgameDto {
   @IsString()
@@ -48,4 +48,8 @@ export class EditBoardgameDto {
   @IsString()
   @IsOptional()
   bggLink?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  inCollection?: boolean;
 }

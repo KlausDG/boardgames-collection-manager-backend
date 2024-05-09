@@ -1,10 +1,7 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -52,8 +49,7 @@ export class BoardgameController {
     return this.boardgameService.editBoardgameById(userId, boardgameId, dto);
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete(':id')
+  @Patch('remove/:id')
   deleteBoardgameById(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) boardgameId: number,

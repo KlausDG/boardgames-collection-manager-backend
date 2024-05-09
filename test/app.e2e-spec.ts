@@ -238,6 +238,18 @@ describe('App e2e', () => {
           .expectBodyContains(dto.name);
       });
     });
-    describe('Delete boardgame', () => {});
+    describe('Remove from collection', () => {
+      it('should remove boardgame from collection', () => {
+        return pactum
+          .spec()
+          .patch('/boardgames/remove/{id}')
+          .withPathParams('id', '$S{boardgameId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .inspect();
+      });
+    });
   });
 });

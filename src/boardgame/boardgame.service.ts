@@ -40,7 +40,6 @@ export class BoardgameService {
           user: {
             connect: { id: userId },
           },
-          description: 'asd',
           ...otherDtoFields,
           ...designerParam,
         },
@@ -89,5 +88,15 @@ export class BoardgameService {
     });
   }
 
-  deleteBoardgameById(userId: number, boardgameId: number) {}
+  deleteBoardgameById(userId: number, boardgameId: number) {
+    return this.prisma.boardgame.update({
+      where: {
+        userId,
+        id: boardgameId,
+      },
+      data: {
+        inCollection: false,
+      },
+    });
+  }
 }
