@@ -30,7 +30,7 @@ model Boardgame {
 
   name               String @unique
   thumbnail          String
-  description        String
+  description        String?
   yearPublished      String?
   minPlayers         Int?
   maxPlayers         Int?
@@ -40,6 +40,7 @@ model Boardgame {
   weight             Float?
   bggRank            Int?
   bggLink            String?
+  inCollection       Boolean @default(true)
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
