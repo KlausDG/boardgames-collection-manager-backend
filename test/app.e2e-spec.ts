@@ -203,8 +203,7 @@ describe('App e2e', () => {
             Authorization: 'Bearer $S{userAt}',
           })
           .expectStatus(200)
-          .expectJsonLength(1)
-          .inspect();
+          .expectJsonLength(1);
       });
     });
 
