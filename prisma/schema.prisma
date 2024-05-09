@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -28,7 +29,7 @@ model Boardgame {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name               String @unique
+  name               String  @unique
   thumbnail          String
   description        String?
   yearPublished      String?
@@ -52,8 +53,8 @@ model Boardgame {
 }
 
 model Designer {
-  id        Int         @id @default(autoincrement())
-  name      String
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
   Boardgame Boardgame[]
 
