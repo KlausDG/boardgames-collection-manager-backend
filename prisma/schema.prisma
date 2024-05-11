@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["relationJoins"]
 }
 
@@ -29,19 +29,20 @@ model Boardgame {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name               String  @unique
-  thumbnail          String
-  description        String?
-  yearPublished      String?
-  minPlayers         Int?
-  maxPlayers         Int?
-  bestPlayers_amount Int?
-  minPlaying_time    Int?
-  maxPlaying_time    Int?
-  weight             Float?
-  bggRank            Int?
-  bggLink            String?
-  inCollection       Boolean @default(true)
+  name            String  @unique
+  thumbnail       String
+  description     String?
+  yearPublished   String?
+  language        String?
+  minPlayers      Int?
+  maxPlayers      Int?
+  bestPlayerCount Int?
+  minPlaytime     Int?
+  maxPlaytime     Int?
+  weight          Float?
+  bggRank         Int?
+  bggLink         String?
+  inCollection    Boolean @default(true)
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
