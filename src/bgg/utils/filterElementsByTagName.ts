@@ -6,13 +6,12 @@ export const filterElementsByTagName = <
   data: SingleOrMany<T>,
   tag: string,
 ) => {
-  let response: Array<T>;
+  const dataToFilter = Array.isArray(data) ? data : [data];
 
-  if (Array.isArray(data)) {
-    response = data.filter((item) => item.type === tag);
-  } else {
-    response = [data].filter((item) => item.type === tag);
-  }
-
-  return response.map((item) => item.value);
-};
+  return dataToFilter.reduce((acc, item) => {
+    if (item.type === tag) {
+      acc.push(item.value);
+    }
+    return acc;
+  }, [] as Array<string>);
+}
