@@ -49,8 +49,7 @@ model Boardgame {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  designerId Int
-  designer   Designer @relation(fields: [designerId], references: [id], onDelete: Cascade)
+  designers Designer[]
 
   @@map("boardgames")
 }
@@ -59,7 +58,8 @@ model Designer {
   id   Int    @id @default(autoincrement())
   name String @unique
 
-  Boardgame Boardgame[]
+  boardgames Boardgame[]
 
   @@map("designers")
 }
+

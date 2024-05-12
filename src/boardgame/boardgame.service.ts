@@ -15,16 +15,21 @@ export class BoardgameService {
 
   async createBoardgame(userId: number, dto: CreateBoardgameDto) {
     try {
-      const { designerName, ...otherDtoFields } = dto;
+      const { designers, ...otherDtoFields } = dto;
 
-      const designer =
-        await this.designerService.findOrCreateDesigner(designerName);
+      const designersDbData =
+        await this.designerService.findOrCreateDesigners(designers);
 
       const boardgame = await this.prisma.boardgame.create({
         data: {
           user: connectWithId(userId),
-          designer: connectWithId(designer.id),
+          designers: {
+            connect: designersDbData.map((designer) => ({ id: designer.id })),
+          },
           ...otherDtoFields,
+        },
+        include: {
+          designers: true,
         },
       });
 
@@ -44,7 +49,7 @@ export class BoardgameService {
         userId,
       },
       include: {
-        designer: true,
+        designers: true,
       },
     });
   }
@@ -56,7 +61,7 @@ export class BoardgameService {
         id: boardgameId,
       },
       include: {
-        designer: true,
+        designers: true,
       },
     });
   }

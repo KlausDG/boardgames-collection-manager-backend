@@ -157,7 +157,7 @@ describe('App e2e', () => {
       const dto: CreateBoardgameDto = {
         name: 'Boardgame',
         thumbnail: 'https://www.google.com',
-        designerName: 'Klaus',
+        designers: ['Klaus', 'Dieter', 'Galm'],
       };
 
       it('should create a boardgame', () => {
@@ -169,7 +169,8 @@ describe('App e2e', () => {
           })
           .withBody(dto)
           .expectStatus(201)
-          .stores('boardgameId', 'id');
+          .stores('boardgameId', 'id')
+          .inspect();
       });
 
       it('should throw if there is already a boardgame with the same required fields in the database', () => {

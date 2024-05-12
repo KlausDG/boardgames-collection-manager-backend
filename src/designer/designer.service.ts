@@ -6,19 +6,28 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DesignerService {
   constructor(private prisma: PrismaService) {}
 
-  async findOrCreateDesigner(designerName: string) {
-    let designer = await this.prisma.designer.findUnique({
-      where: { name: designerName },
-    });
+  async findOrCreateDesigners(designersNames: Array<string>) {
+    const designers = [];
 
-    if (!designer) {
-      designer = await this.prisma.designer.create({
-        data: {
-          name: designerName,
-        },
+    for (const name of designersNames) {
+      let designer = await this.prisma.designer.findUnique({
+        where: { name },
       });
+
+      if (!designer) {
+        designer = await this.prisma.designer.create({
+          data: {
+            name,
+          },
+        });
+      }
+
+      designers.push(designer);
     }
 
-    return designer;
+    return designers as {
+      id: number;
+      name: string;
+    }[];
   }
 }
