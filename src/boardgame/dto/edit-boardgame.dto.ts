@@ -17,6 +17,10 @@ export class EditBoardgameDto {
   @IsOptional()
   yearPublished?: string;
 
+  @IsString()
+  @IsOptional()
+  language?: string;
+
   @IsNumber()
   @IsOptional()
   minPlayers?: number;
@@ -27,15 +31,15 @@ export class EditBoardgameDto {
 
   @IsNumber()
   @IsOptional()
-  bestPlayers_amount?: number;
+  bestPlayerCount?: number;
 
   @IsNumber()
   @IsOptional()
-  minPlaying_time?: number;
+  minPlaytime?: number;
 
   @IsNumber()
   @IsOptional()
-  maxPlaying_time?: number;
+  maxPlaytime?: number;
 
   @IsNumber()
   @IsOptional()

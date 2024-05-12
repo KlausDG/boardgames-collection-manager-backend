@@ -6,6 +6,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { BoardgameModule } from './boardgame/boardgame.module';
 import { DesignerModule } from './designer/designer.module';
+import { BggModule } from './bgg/bgg.module';
+import { BggScrapperModule } from './bgg-scrapper/bgg-scrapper.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { DesignerModule } from './designer/designer.module';
     PrismaModule,
     BoardgameModule,
     DesignerModule,
+    BggModule,
+    BggScrapperModule,
   ],
 })
 export class AppModule {}
