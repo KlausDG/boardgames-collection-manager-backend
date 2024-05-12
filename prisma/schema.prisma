@@ -20,6 +20,7 @@ model User {
   lastName  String?
 
   boardgames Boardgame[]
+  Sleeve     Sleeve[]
 
   @@map("users")
 }
@@ -29,12 +30,12 @@ model Boardgame {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name            String  @unique
+  name            String              @unique
   thumbnail       String
   description     String?
   yearPublished   String?
   language        String?
-  minPlayers      Int?
+  minPlayers      Int?                @default(1)
   maxPlayers      Int?
   bestPlayerCount Int?
   minPlaytime     Int?
@@ -42,20 +43,24 @@ model Boardgame {
   weight          Float?
   bggRank         Int?
   bggLink         String?
-  inCollection    Boolean @default(true)
-  // Add category
-  // Add purchased value
+  inCollection    Boolean             @default(true)
+  category        BoardgameCategories @default(BASE)
+  purchasedValue  Float?
 
-  userId Int
+  userId Int  @unique
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   designers Designer[]
+  sleeves   BoardgameSleeve[]
 
   @@map("boardgames")
 }
 
 model Designer {
-  id   Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   name String @unique
 
   boardgames Boardgame[]
@@ -63,3 +68,82 @@ model Designer {
   @@map("designers")
 }
 
+model SleeveBrand {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String @unique
+
+  sleeveTypes Sleeve[]
+
+  @@map("sleeve_brands")
+}
+
+model SleeveType {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name     String
+  width    Float
+  Height   Float
+  isCustom Boolean @default(false)
+
+  sleeveBrands Sleeve[]
+
+  @@map("sleeve_types")
+}
+
+model Sleeve {
+  id        Int      @unique() @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category        SleeveCategories @default(REGULAR)
+  availableAmount Int              @default(0)
+  totalAmount     Int              @default(0)
+
+  boardgames BoardgameSleeve[]
+
+  sleeveType    SleeveType  @relation(fields: [sleeveTypeId], references: [id])
+  sleeveTypeId  Int
+  SleeveBrand   SleeveBrand @relation(fields: [sleeveBrandId], references: [id])
+  sleeveBrandId Int
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([sleeveTypeId, sleeveBrandId, id])
+  @@map("sleeves")
+}
+
+model BoardgameSleeve {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  amount Int
+
+  boardgame   Boardgame @relation(fields: [boardgameId], references: [id])
+  boardgameId Int
+  sleeve      Sleeve    @relation(fields: [sleeveId], references: [id])
+  sleeveId    Int
+
+  @@id([boardgameId, sleeveId])
+  @@map("boardgame_sleeves")
+}
+
+enum BoardgameCategories {
+  BASE
+  EXPANSION
+  ADDON
+  EXTRA
+  ACCESSORY
+}
+
+enum SleeveCategories {
+  SLIM
+  REGULAR
+  PREMIUM
+  ULTRA_PREMIUM
+}
