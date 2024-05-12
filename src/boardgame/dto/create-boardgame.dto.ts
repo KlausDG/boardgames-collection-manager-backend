@@ -1,4 +1,6 @@
 import {
+  ArrayMinSize,
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -16,9 +18,11 @@ export class CreateBoardgameDto {
   @IsUrl()
   thumbnail: string;
 
-  @IsString()
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
   @IsNotEmpty()
-  designerName: string;
+  designers: string[];
 
   @IsString()
   @IsOptional()
