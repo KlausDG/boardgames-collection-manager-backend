@@ -43,6 +43,8 @@ model Boardgame {
   bggRank         Int?
   bggLink         String?
   inCollection    Boolean @default(true)
+  // Add category
+  // Add purchased value
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
