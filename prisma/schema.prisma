@@ -20,6 +20,7 @@ model User {
   lastName  String?
 
   boardgames Boardgame[]
+  sleeve     Sleeve[]
 
   @@map("users")
 }
@@ -29,12 +30,12 @@ model Boardgame {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name            String  @unique
+  name            String              @unique
   thumbnail       String
   description     String?
   yearPublished   String?
   language        String?
-  minPlayers      Int?
+  minPlayers      Int?                @default(1)
   maxPlayers      Int?
   bestPlayerCount Int?
   minPlaytime     Int?
@@ -42,20 +43,25 @@ model Boardgame {
   weight          Float?
   bggRank         Int?
   bggLink         String?
-  inCollection    Boolean @default(true)
-  // Add category
-  // Add purchased value
+  inCollection    Boolean             @default(true)
+  category        BoardgameCategories @default(BASE)
+  purchasedValue  Float?
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   designers Designer[]
 
+  sleeves SleeveToBoardgame[]
+
   @@map("boardgames")
 }
 
 model Designer {
-  id   Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   name String @unique
 
   boardgames Boardgame[]
@@ -63,3 +69,52 @@ model Designer {
   @@map("designers")
 }
 
+model Sleeve {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brand       String
+  type        String
+  width       Float
+  height      Float
+  category    SleeveCategories? @default(REGULAR)
+  amountOwned Int
+
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+
+  boardgame SleeveToBoardgame[]
+
+  @@unique([brand, type, category])
+}
+
+model SleeveToBoardgame {
+  id          Int @id @default(autoincrement())
+  boardgameId Int
+  sleeveId    Int
+
+  amount Int @default(0)
+
+  boardgame Boardgame @relation(fields: [boardgameId], references: [id])
+  sleeve    Sleeve    @relation(fields: [sleeveId], references: [id])
+
+  @@unique([boardgameId, sleeveId])
+}
+
+//Criar tabela de relação sleeve-boardgame pois preciso saber quantos sleeves o board usa
+
+enum BoardgameCategories {
+  BASE
+  EXPANSION
+  ADDON
+  EXTRA
+  ACCESSORY
+}
+
+enum SleeveCategories {
+  SLIM
+  REGULAR
+  PREMIUM
+  ULTRA_PREMIUM
+}

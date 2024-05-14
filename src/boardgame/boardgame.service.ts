@@ -30,6 +30,7 @@ export class BoardgameService {
         },
         include: {
           designers: true,
+          sleeves: true,
         },
       });
 
@@ -50,6 +51,7 @@ export class BoardgameService {
       },
       include: {
         designers: true,
+        sleeves: true,
       },
     });
   }
@@ -62,6 +64,7 @@ export class BoardgameService {
       },
       include: {
         designers: true,
+        sleeves: true,
       },
     });
   }

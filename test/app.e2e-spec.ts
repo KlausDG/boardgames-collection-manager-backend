@@ -1,6 +1,8 @@
 import * as pactum from 'pactum';
-import { CreateBoardgameDto, EditBoardgameDto } from 'src/boardgame/dto';
 
+import { CreateBoardgameDto, EditBoardgameDto } from '@/boardgame/dto';
+import { CreateSleeveDto } from '@/sleeves/dto';
+import { SleeveCategories } from '@/sleeves/types';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
@@ -169,8 +171,7 @@ describe('App e2e', () => {
           })
           .withBody(dto)
           .expectStatus(201)
-          .stores('boardgameId', 'id')
-          .inspect();
+          .stores('boardgameId', 'id');
       });
 
       it('should throw if there is already a boardgame with the same required fields in the database', () => {
@@ -249,6 +250,65 @@ describe('App e2e', () => {
             Authorization: 'Bearer $S{userAt}',
           })
           .expectStatus(200);
+      });
+    });
+  });
+
+  describe('Sleeves', () => {
+    describe('Get empty sleeves', () => {
+      it('should get sleeves', () => {
+        return pactum
+          .spec()
+          .get('/sleeves')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
+
+    describe('Create sleeve', () => {
+      const dto: CreateSleeveDto = {
+        brand: 'Meeple Virus',
+        type: 'Mini Euro',
+        amount: 100,
+        width: 50,
+        height: 50,
+        category: SleeveCategories.REGULAR,
+      };
+
+      it('should create a sleeve', () => {
+        return pactum
+          .spec()
+          .post('/sleeves')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(201)
+          .stores('sleeveId', 'id');
+      });
+
+      it('should throw if there is already a sleeve with the same required fields in the database', () => {
+        return pactum
+          .spec()
+          .post('/sleeves')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(403);
+      });
+
+      it('should throw if no body is provided', () => {
+        return pactum
+          .spec()
+          .post('/sleeves')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(400);
       });
     });
   });
