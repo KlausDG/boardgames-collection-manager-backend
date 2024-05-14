@@ -20,7 +20,7 @@ model User {
   lastName  String?
 
   boardgames Boardgame[]
-  Sleeve     Sleeve[]
+  sleeve     Sleeve[]
 
   @@map("users")
 }
@@ -47,11 +47,12 @@ model Boardgame {
   category        BoardgameCategories @default(BASE)
   purchasedValue  Float?
 
-  userId Int  @unique
+  userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   designers Designer[]
-  sleeves   BoardgameSleeve[]
+
+  sleeves SleeveToBoardgame[]
 
   @@map("boardgames")
 }
@@ -68,70 +69,40 @@ model Designer {
   @@map("designers")
 }
 
-model SleeveBrand {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name String @unique
-
-  sleeveTypes Sleeve[]
-
-  @@map("sleeve_brands")
-}
-
-model SleeveType {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name     String
-  width    Float
-  Height   Float
-  isCustom Boolean @default(false)
-
-  sleeveBrands Sleeve[]
-
-  @@map("sleeve_types")
-}
-
 model Sleeve {
-  id        Int      @unique() @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  category        SleeveCategories @default(REGULAR)
-  availableAmount Int              @default(0)
-  totalAmount     Int              @default(0)
+  brand       String
+  type        String
+  width       Float
+  height      Float
+  category    SleeveCategories? @default(REGULAR)
+  amountOwned Int
 
-  boardgames BoardgameSleeve[]
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
 
-  sleeveType    SleeveType  @relation(fields: [sleeveTypeId], references: [id])
-  sleeveTypeId  Int
-  SleeveBrand   SleeveBrand @relation(fields: [sleeveBrandId], references: [id])
-  sleeveBrandId Int
+  boardgame SleeveToBoardgame[]
 
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([sleeveTypeId, sleeveBrandId, id])
-  @@map("sleeves")
+  @@unique([brand, type, category])
 }
 
-model BoardgameSleeve {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  amount Int
-
-  boardgame   Boardgame @relation(fields: [boardgameId], references: [id])
+model SleeveToBoardgame {
+  id          Int @id @default(autoincrement())
   boardgameId Int
-  sleeve      Sleeve    @relation(fields: [sleeveId], references: [id])
   sleeveId    Int
 
-  @@id([boardgameId, sleeveId])
-  @@map("boardgame_sleeves")
+  amount Int @default(0)
+
+  boardgame Boardgame @relation(fields: [boardgameId], references: [id])
+  sleeve    Sleeve    @relation(fields: [sleeveId], references: [id])
+
+  @@unique([boardgameId, sleeveId])
 }
+
+//Criar tabela de relação sleeve-boardgame pois preciso saber quantos sleeves o board usa
 
 enum BoardgameCategories {
   BASE
