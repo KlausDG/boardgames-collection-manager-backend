@@ -55,8 +55,6 @@ export class SleevesService {
   }
 
   getSleevesByType(userId: number, type: string) {
-    console.log(type);
-
     return this.prisma.sleeve.findMany({
       where: {
         userId,
