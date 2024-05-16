@@ -8,23 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  email String @unique
-  hash  String
-
-  firstName String?
-  lastName  String?
-
-  boardgames Boardgame[]
-  sleeve     Sleeve[]
-
-  @@map("users")
-}
-
 model Boardgame {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -46,9 +29,6 @@ model Boardgame {
   inCollection    Boolean             @default(true)
   category        BoardgameCategories @default(BASE)
   purchasedValue  Float?
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   designers Designer[]
 
@@ -81,9 +61,6 @@ model Sleeve {
   category    SleeveCategories? @default(REGULAR)
   amountOwned Int
 
-  user   User? @relation(fields: [userId], references: [id])
-  userId Int?
-
   boardgame SleeveToBoardgame[]
 
   @@unique([brand, type, category])
@@ -101,8 +78,6 @@ model SleeveToBoardgame {
 
   @@unique([boardgameId, sleeveId])
 }
-
-//Criar tabela de relação sleeve-boardgame pois preciso saber quantos sleeves o board usa
 
 enum BoardgameCategories {
   BASE

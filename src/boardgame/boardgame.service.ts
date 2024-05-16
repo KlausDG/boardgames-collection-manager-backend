@@ -3,7 +3,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 import { DesignerService } from '../designer/designer.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { connectWithId } from '../utils';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class BoardgameService {
     private designerService: DesignerService,
   ) {}
 
-  async createBoardgame(userId: number, dto: CreateBoardgameDto) {
+  async createBoardgame(dto: CreateBoardgameDto) {
     try {
       const { designers, ...otherDtoFields } = dto;
 
@@ -22,7 +21,6 @@ export class BoardgameService {
 
       const boardgame = await this.prisma.boardgame.create({
         data: {
-          user: connectWithId(userId),
           designers: {
             connect: designersDbData.map((designer) => ({ id: designer.id })),
           },
@@ -44,11 +42,8 @@ export class BoardgameService {
     }
   }
 
-  getBoardgames(userId: number) {
+  getBoardgames() {
     return this.prisma.boardgame.findMany({
-      where: {
-        userId,
-      },
       include: {
         designers: true,
         sleeves: true,
@@ -56,10 +51,9 @@ export class BoardgameService {
     });
   }
 
-  getBoardgameById(userId: number, boardgameId: number) {
+  getBoardgameById(boardgameId: number) {
     return this.prisma.boardgame.findFirst({
       where: {
-        userId,
         id: boardgameId,
       },
       include: {
@@ -69,14 +63,9 @@ export class BoardgameService {
     });
   }
 
-  editBoardgameById(
-    userId: number,
-    boardgameId: number,
-    dto: EditBoardgameDto,
-  ) {
+  editBoardgameById(boardgameId: number, dto: EditBoardgameDto) {
     return this.prisma.boardgame.update({
       where: {
-        userId,
         id: boardgameId,
       },
       data: {
@@ -85,10 +74,9 @@ export class BoardgameService {
     });
   }
 
-  deleteBoardgameById(userId: number, boardgameId: number) {
+  deleteBoardgameById(boardgameId: number) {
     return this.prisma.boardgame.update({
       where: {
-        userId,
         id: boardgameId,
       },
       data: {

@@ -1,5 +1,6 @@
 import * as pactum from 'pactum';
 
+import { AuthGuard } from '@/auth/guard';
 import { CreateBoardgameDto, EditBoardgameDto } from '@/boardgame/dto';
 import { CreateSleeveDto } from '@/sleeves/dto';
 import { SleeveCategories } from '@/sleeves/types';
@@ -7,9 +8,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { AppModule } from '../src/app.module';
-import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { EditUserDto } from '../src/user/dto';
+import { MockAuthGuard } from './mocks';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -18,7 +18,10 @@ describe('App e2e', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useClass(MockAuthGuard)
+      .compile();
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(
@@ -39,107 +42,7 @@ describe('App e2e', () => {
     app.close();
   });
 
-  describe('Auth', () => {
-    const dto: AuthDto = {
-      email: 'klausdgalm@hotmail.com',
-      password: '123',
-    };
-
-    describe('Signup', () => {
-      it('should throw if email is empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody({ password: dto.password })
-          .expectStatus(400);
-      });
-      it('should throw if password is empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody({ email: dto.email })
-          .expectStatus(400);
-      });
-      it('should throw if no body is provided', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-
-          .expectStatus(400);
-      });
-      it('should signup', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody(dto)
-          .expectStatus(201);
-      });
-    });
-
-    describe('Signin', () => {
-      it('should throw if email is empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody({ password: dto.password })
-          .expectStatus(400);
-      });
-      it('should throw if password is empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody({ email: dto.email })
-          .expectStatus(400);
-      });
-      it('should throw if no body is provided', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-
-          .expectStatus(400);
-      });
-      it('should signin', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody(dto)
-          .expectStatus(200)
-          .stores('userAt', 'access_token');
-      });
-    });
-  });
-
-  describe('User', () => {
-    describe('Get me', () => {
-      it('should get current user', () => {
-        return pactum
-          .spec()
-          .get('/users/me')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200);
-      });
-    });
-
-    describe('Edit user', () => {
-      it('should edit user', () => {
-        const dto: EditUserDto = {
-          firstName: 'Klaus',
-        };
-
-        return pactum
-          .spec()
-          .patch('/users')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .withBody(dto)
-          .expectStatus(200)
-          .expectBodyContains(dto.firstName);
-      });
-    });
-  });
+  //describe('Auth', () => {})
 
   describe('Boardgames', () => {
     describe('Get empty boardgames', () => {

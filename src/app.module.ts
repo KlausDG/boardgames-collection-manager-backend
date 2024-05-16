@@ -7,18 +7,15 @@ import { BggModule } from './bgg/bgg.module';
 import { BoardgameModule } from './boardgame/boardgame.module';
 import { DesignerModule } from './designer/designer.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { SleevesModule } from './sleeves/sleeves.module';
-import { UserModule } from './user/user.module';
 import { SleeveToBoardgameModule } from './sleeve-to-boardgame/sleeve-to-boardgame.module';
+import { SleevesModule } from './sleeves/sleeves.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
     AuthModule,
-    UserModule,
     PrismaModule,
     BoardgameModule,
     DesignerModule,
