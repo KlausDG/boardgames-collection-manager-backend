@@ -13,7 +13,7 @@ export class BggService {
   async findBoardgamesByName(name: string) {
     const apiResult = await getBggSearch({
       query: name,
-      type: ['boardgame', 'boardgameexpansion'],
+      type: ['boardgame'],
     });
 
     const formattedResponse = apiResult.item.map((item) => {
