@@ -24,6 +24,12 @@ export class CreateBoardgameDto {
   @IsNotEmpty()
   designers: string[];
 
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  @IsNotEmpty()
+  publishers: string[];
+
   @IsString()
   @IsOptional()
   description?: string;
