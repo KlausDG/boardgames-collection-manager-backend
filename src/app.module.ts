@@ -9,6 +9,8 @@ import { DesignerModule } from './designer/designer.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SleeveToBoardgameModule } from './sleeve-to-boardgame/sleeve-to-boardgame.module';
 import { SleevesModule } from './sleeves/sleeves.module';
+import { PublisherService } from './publisher/publisher.service';
+import { PublisherModule } from './publisher/publisher.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { SleevesModule } from './sleeves/sleeves.module';
     BggScrapperModule,
     SleevesModule,
     SleeveToBoardgameModule,
+    PublisherModule,
   ],
+  providers: [PublisherService],
 })
 export class AppModule {}

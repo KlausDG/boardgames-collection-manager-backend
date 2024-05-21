@@ -1,3 +1,4 @@
+import { PublisherService } from '@/publisher/publisher.service';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
@@ -10,19 +11,26 @@ export class BoardgameService {
   constructor(
     private prisma: PrismaService,
     private designerService: DesignerService,
+    private publisherService: PublisherService,
   ) {}
 
   async createBoardgame(dto: CreateBoardgameDto) {
     try {
-      const { designers, ...otherDtoFields } = dto;
+      const { designers, publishers, ...otherDtoFields } = dto;
 
       const designersDbData =
         await this.designerService.findOrCreateDesigners(designers);
+
+      const publisherDbData =
+        await this.publisherService.findOrCreatePublisher(publishers);
 
       const boardgame = await this.prisma.boardgame.create({
         data: {
           designers: {
             connect: designersDbData.map((designer) => ({ id: designer.id })),
+          },
+          publishers: {
+            connect: publisherDbData.map((publisher) => ({ id: publisher.id })),
           },
           ...otherDtoFields,
         },
