@@ -16,7 +16,7 @@ export class BggService {
       type: ['boardgame'],
     });
 
-    const formattedResponse = apiResult.item.map((item) => {
+    const formattedResponse = apiResult.item.slice(0, 10).map((item) => {
       const { name, yearpublished, type, id } = item;
 
       const yearPublishedSection = yearpublished
