@@ -16,24 +16,31 @@ model Boardgame {
   name            String              @unique
   thumbnail       String
   description     String?
-  yearPublished   String?
+  yearPublished   Int?
   language        String?
   minPlayers      Int?                @default(1)
   maxPlayers      Int?
-  bestPlayerCount Int?
+  bestPlayerCount Int[]
   minPlaytime     Int?
   maxPlaytime     Int?
   weight          Float?
   bggRank         Int?
   bggLink         String?
+  bggId           Int                 @unique
   inCollection    Boolean             @default(true)
   category        BoardgameCategories @default(BASE)
   purchasedValue  Float?
+  isExpansion     Boolean             @default(false)
+  isExpansionFor  Boardgame?          @relation("ExpansionFor", fields: [isExpansionForBggId], references: [bggId])
+  isExpansionForBggId Int?
 
-  designers Designer[]
-  publishers Publisher[]
+  designers   Designer[]
+  publisher   Publisher  @relation(fields: [publisherId], references: [id])
+  publisherId Int
 
   sleeves SleeveToBoardgame[]
+
+  expansions Boardgame[] @relation("ExpansionFor")
 
   @@map("boardgames")
 }

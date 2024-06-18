@@ -1,32 +1,24 @@
-import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PublisherService {
   constructor(private prisma: PrismaService) {}
 
-  async findOrCreatePublisher(publishersNames: Array<string>) {
-    const publishers = [];
+  async findOrCreatePublisher(publisher: string) {
+    let existingPublisher = await this.prisma.publisher.findUnique({
+      where: { name: publisher },
+    });
 
-    for (const name of publishersNames) {
-      let publisher = await this.prisma.publisher.findUnique({
-        where: { name },
+    if (!existingPublisher) {
+      existingPublisher = await this.prisma.publisher.create({
+        data: {
+          name: publisher,
+        },
       });
-
-      if (!publisher) {
-        publisher = await this.prisma.publisher.create({
-          data: {
-            name,
-          },
-        });
-      }
-
-      publishers.push(publisher);
     }
 
-    return publishers as {
-      id: number;
-      name: string;
-    }[];
+    return existingPublisher;
   }
 }

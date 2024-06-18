@@ -1,4 +1,3 @@
-import { AuthGuard } from '@/auth/guard';
 import {
   Body,
   Controller,
@@ -7,13 +6,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseGuards,
+  Query,
 } from '@nestjs/common';
 
 import { BoardgameService } from './boardgame.service';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 @Controller('boardgames')
 export class BoardgameController {
   constructor(private boardgameService: BoardgameService) {}
@@ -24,13 +23,18 @@ export class BoardgameController {
   }
 
   @Get()
-  getBoardgames() {
-    return this.boardgameService.getBoardgames();
+  getBoardgames(@Query('filter') filter: 'basegame' | 'expansion') {
+    return this.boardgameService.getBoardgames(filter);
   }
 
   @Get(':id')
   getBoardgameById(@Param('id', ParseIntPipe) boardgameId: number) {
     return this.boardgameService.getBoardgameById(boardgameId);
+  }
+
+  @Get('exists/:id')
+  getBoardgameByBggId(@Param('id', ParseIntPipe) boardgameId: number) {
+    return this.boardgameService.getBoardgameByBggId(boardgameId);
   }
 
   @Patch(':id')
