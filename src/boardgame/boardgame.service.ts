@@ -82,7 +82,7 @@ export class BoardgameService {
         include: {
           designers: selectBaseFields(),
           publisher: selectBaseFields(),
-          sleeves: true,
+          sleeveRequirements: true,
           isExpansionFor: selectBaseFields(),
         },
       });
@@ -106,7 +106,7 @@ export class BoardgameService {
         designers: selectBaseFields(),
         publisher: selectBaseFields(),
         expansions: true,
-        sleeves: true,
+        sleeveRequirements: true,
       },
     });
     return boardgames.map((game) => {
@@ -124,7 +124,7 @@ export class BoardgameService {
         designers: selectBaseFields(),
         publisher: selectBaseFields(),
         expansions: true,
-        sleeves: true,
+        sleeveRequirements: true,
       },
     });
   }
@@ -167,5 +167,40 @@ export class BoardgameService {
         inCollection: false,
       },
     });
+  }
+
+  async canSleeveBoardgame(boardgameId: number) {
+    const boardgame = await this.prisma.boardgame.findUnique({
+      where: { id: boardgameId },
+      include: {
+        sleeveRequirements: {
+          include: {
+            sleeveType: true,
+          },
+        },
+      },
+    });
+
+    if (!boardgame) {
+      throw new Error('Boardgame not found');
+    }
+
+    for (const requirement of boardgame.sleeveRequirements) {
+      const { sleeveType, amount } = requirement;
+
+      // Check if there's enough stock for each requirement without mixing brands, types, or categories
+      const sufficientStock = await this.prisma.sleeveStock.findMany({
+        where: {
+          sleeveTypeId: sleeveType.id,
+          amount: { gte: amount },
+        },
+      });
+
+      if (sufficientStock.length === 0) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

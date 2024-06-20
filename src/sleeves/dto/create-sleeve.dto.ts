@@ -1,10 +1,4 @@
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 import { SleeveCategories } from '../types';
 
@@ -13,23 +7,19 @@ export class CreateSleeveDto {
   @IsNotEmpty()
   brand: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  type: string;
+  sleeveTypeId: number;
 
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  packs: number;
 
   @IsNumber()
   @IsNotEmpty()
-  width: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  height: number;
+  sleevesPerPack: number;
 
   @IsEnum(SleeveCategories)
-  @IsOptional()
-  category?: SleeveCategories;
+  @IsNotEmpty()
+  category: SleeveCategories;
 }

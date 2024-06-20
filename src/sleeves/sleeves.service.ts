@@ -2,25 +2,71 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-import { CreateSleeveDto, EditSleeveDto } from './dto';
-import { SleeveOrderBy } from './types';
+import { CreateSleeveDto } from './dto';
 
 @Injectable()
 export class SleevesService {
   constructor(private prisma: PrismaService) {}
 
-  async createSleeve(dto: CreateSleeveDto) {
-    try {
-      const { amount, ...otherDtoFields } = dto;
+  async addSleevePacks({
+    brand,
+    category,
+    sleeveTypeId,
+    packs,
+    sleevesPerPack,
+  }: CreateSleeveDto) {
+    let brandData = await this.prisma.sleeveBrand.findFirst({
+      where: {
+        name: brand,
+      },
+    });
 
-      const sleeve = await this.prisma.sleeve.create({
+    if (!brandData) {
+      brandData = await this.prisma.sleeveBrand.create({
         data: {
-          amountOwned: amount,
-          ...otherDtoFields,
+          name: brand,
         },
       });
+    }
 
-      return sleeve;
+    const existingStock = await this.prisma.sleeveStock.findFirst({
+      where: {
+        brandId: brandData.id,
+        category,
+        sleeveTypeId,
+        sleevesPerPack,
+      },
+    });
+
+    if (existingStock) {
+      await this.prisma.sleeveStock.update({
+        where: { id: existingStock.id },
+        data: {
+          amount: existingStock.amount + packs * sleevesPerPack,
+          packs: existingStock.packs + packs,
+        },
+      });
+    } else {
+      await this.prisma.sleeveStock.create({
+        data: {
+          brandId: brandData.id,
+          category,
+          sleeveTypeId,
+          amount: packs * sleevesPerPack,
+          packs,
+          sleevesPerPack,
+        },
+      });
+    }
+  }
+
+  async createSleeveType({ type, width, height }) {
+    try {
+      const sleeveType = await this.prisma.sleeveType.create({
+        data: { type, width, height },
+      });
+
+      return sleeveType;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -30,43 +76,22 @@ export class SleevesService {
     }
   }
 
-  getSleeves(orderBy?: SleeveOrderBy) {
-    return this.prisma.sleeve.findMany({
-      orderBy,
+  getSleeveTypes() {
+    return this.prisma.sleeveType.findMany({
       include: {
-        boardgame: true,
+        requirements: true,
+        stocks: true,
       },
     });
   }
 
-  getSleevesByBrand(brand: string) {
-    return this.prisma.sleeve.findMany({
-      where: {
-        brand: { contains: brand },
+  getSleeveBrands() {
+    return this.prisma.sleeveBrand.findMany({
+      orderBy: {
+        name: 'asc',
       },
-      orderBy: { brand: 'asc' },
-    });
-  }
-
-  getSleevesByType(type: string) {
-    return this.prisma.sleeve.findMany({
-      where: {
-        type,
-      },
-      orderBy: { type: 'asc' },
-    });
-  }
-
-  editSleeveById(sleeveId: number, dto: EditSleeveDto) {
-    const { amount, ...otherDtoFields } = dto;
-
-    return this.prisma.sleeve.update({
-      where: {
-        id: sleeveId,
-      },
-      data: {
-        amountOwned: amount,
-        ...otherDtoFields,
+      include: {
+        stocks: true,
       },
     });
   }

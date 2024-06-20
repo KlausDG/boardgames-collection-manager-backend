@@ -13,32 +13,32 @@ model Boardgame {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name            String              @unique
-  thumbnail       String
-  description     String?
-  yearPublished   Int?
-  language        String?
-  minPlayers      Int?                @default(1)
-  maxPlayers      Int?
-  bestPlayerCount Int[]
-  minPlaytime     Int?
-  maxPlaytime     Int?
-  weight          Float?
-  bggRank         Int?
-  bggLink         String?
-  bggId           Int                 @unique
-  inCollection    Boolean             @default(true)
-  category        BoardgameCategories @default(BASE)
-  purchasedValue  Float?
-  isExpansion     Boolean             @default(false)
-  isExpansionFor  Boardgame?          @relation("ExpansionFor", fields: [isExpansionForBggId], references: [bggId])
+  name                String              @unique
+  thumbnail           String
+  description         String?
+  yearPublished       Int?
+  language            String?
+  minPlayers          Int?                @default(1)
+  maxPlayers          Int?
+  bestPlayerCount     Int[]
+  minPlaytime         Int?
+  maxPlaytime         Int?
+  weight              Float?
+  bggRank             Int?
+  bggLink             String?
+  bggId               Int                 @unique
+  inCollection        Boolean             @default(true)
+  category            BoardgameCategories @default(BASE)
+  purchasedValue      Float?
+  isExpansion         Boolean             @default(false)
+  isExpansionFor      Boardgame?          @relation("ExpansionFor", fields: [isExpansionForBggId], references: [bggId])
   isExpansionForBggId Int?
 
   designers   Designer[]
   publisher   Publisher  @relation(fields: [publisherId], references: [id])
   publisherId Int
 
-  sleeves SleeveToBoardgame[]
+  sleeveRequirements BoardgameSleeveRequirement[] @relation("BoardgameRequirement")
 
   expansions Boardgame[] @relation("ExpansionFor")
 
@@ -69,34 +69,40 @@ model Publisher {
   @@map("publishers")
 }
 
-model Sleeve {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  brand       String
-  type        String
-  width       Float
-  height      Float
-  category    SleeveCategories? @default(REGULAR)
-  amountOwned Int
-
-  boardgame SleeveToBoardgame[]
-
-  @@unique([brand, type, category])
+model SleeveType {
+  id           Int                          @id @default(autoincrement())
+  type         String                       @unique
+  width        Float
+  height       Float
+  stocks       SleeveStock[]                @relation("SleeveTypeStock")
+  requirements BoardgameSleeveRequirement[] @relation("SleeveTypeRequirement")
 }
 
-model SleeveToBoardgame {
-  id          Int @id @default(autoincrement())
-  boardgameId Int
-  sleeveId    Int
+model SleeveStock {
+  id             Int              @id @default(autoincrement())
+  brandId        Int
+  brand          SleeveBrand      @relation(fields: [brandId], references: [id])
+  category       SleeveCategories
+  amount         Int
+  packs          Int
+  sleevesPerPack Int
+  sleeveTypeId   Int
+  sleeveType     SleeveType       @relation("SleeveTypeStock", fields: [sleeveTypeId], references: [id])
+}
 
-  amount Int @default(0)
+model SleeveBrand {
+  id     Int           @id @default(autoincrement())
+  name   String
+  stocks SleeveStock[]
+}
 
-  boardgame Boardgame @relation(fields: [boardgameId], references: [id])
-  sleeve    Sleeve    @relation(fields: [sleeveId], references: [id])
-
-  @@unique([boardgameId, sleeveId])
+model BoardgameSleeveRequirement {
+  id           Int        @id @default(autoincrement())
+  amount       Int
+  boardgameId  Int
+  sleeveTypeId Int
+  boardgame    Boardgame  @relation("BoardgameRequirement", fields: [boardgameId], references: [id])
+  sleeveType   SleeveType @relation("SleeveTypeRequirement", fields: [sleeveTypeId], references: [id])
 }
 
 enum BoardgameCategories {

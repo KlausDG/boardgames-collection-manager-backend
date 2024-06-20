@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { ValidationExceptionFilter } from './utils/filters';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +21,8 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
+  app.useGlobalFilters(new ValidationExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Boardgame Collection Manager')
