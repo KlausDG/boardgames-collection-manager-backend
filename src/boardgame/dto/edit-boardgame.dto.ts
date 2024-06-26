@@ -13,9 +13,9 @@ export class EditBoardgameDto {
   @IsOptional()
   description?: string;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  yearPublished?: string;
+  yearPublished?: number;
 
   @IsString()
   @IsOptional()
@@ -29,9 +29,9 @@ export class EditBoardgameDto {
   @IsOptional()
   maxPlayers?: number;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  bestPlayerCount?: number;
+  bestPlayerCount?: string;
 
   @IsNumber()
   @IsOptional()
@@ -52,6 +52,10 @@ export class EditBoardgameDto {
   @IsString()
   @IsOptional()
   bggLink?: string;
+
+  @IsString()
+  @IsOptional()
+  bggId?: number;
 
   @IsBoolean()
   @IsOptional()

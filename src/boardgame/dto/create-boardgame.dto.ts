@@ -1,6 +1,7 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -24,19 +25,17 @@ export class CreateBoardgameDto {
   @IsNotEmpty()
   designers: string[];
 
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsString({ each: true })
+  @IsString()
   @IsNotEmpty()
-  publishers: string[];
+  publisher: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  yearPublished?: string;
+  yearPublished?: number;
 
   @IsString()
   @IsOptional()
@@ -50,9 +49,9 @@ export class CreateBoardgameDto {
   @IsOptional()
   maxPlayers?: number;
 
-  @IsNumber()
-  @IsOptional()
-  bestPlayerCount?: number;
+  @IsString()
+  @IsNotEmpty()
+  bestPlayerCount: string;
 
   @IsNumber()
   @IsOptional()
@@ -64,14 +63,30 @@ export class CreateBoardgameDto {
 
   @IsNumber()
   @IsOptional()
+  purchasedValue?: number;
+
+  @IsNumber()
+  @IsOptional()
   weight?: number;
 
   @IsNumber()
   @IsOptional()
   bggRank?: number;
 
+  @IsNumber()
+  @IsNotEmpty()
+  bggId: number;
+
   @IsString()
   @IsOptional()
   @IsUrl()
   bggLink?: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isExpansion: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  isExpansionForBggId?: number;
 }

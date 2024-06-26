@@ -6,7 +6,7 @@ import {
 
 import { Injectable } from '@nestjs/common';
 
-import { filterElementsByTagName } from './utils';
+import { filterElementsByTagName, findBaseGames } from './utils';
 
 @Injectable()
 export class BggService {
@@ -16,36 +16,44 @@ export class BggService {
       type: ['boardgame'],
     });
 
-    const formattedResponse = apiResult.item.slice(0, 10).map((item) => {
-      const { name, yearpublished, type, id } = item;
+    const formatResponse = () => {
+      if (Array.isArray(apiResult.item)) {
+        return apiResult.item.slice(0, 20).map((item) => {
+          const { name, yearpublished, type, id } = item;
 
-      const yearPublishedSection = yearpublished
-        ? `(${yearpublished?.value})`
-        : '';
+          const yearPublishedSection = yearpublished
+            ? `(${yearpublished?.value})`
+            : '';
 
-      return {
-        id,
-        name: `${name.value} ${yearPublishedSection}`,
-        type,
-      };
-    });
+          return {
+            id,
+            name: `${name.value} ${yearPublishedSection}`,
+            type,
+          };
+        });
+      }
+      return apiResult.item;
+    };
 
     return {
-      items: formattedResponse,
+      items: apiResult.total ? formatResponse() : [],
       total: apiResult.total,
     };
   }
 
   async findBoardGameDetailsById(id: number) {
     const apiResult = await getBggThing({ id });
+
     const item = apiResult.item as BggBoardgameItem;
     const { link } = item;
 
     const designers = filterElementsByTagName(link, 'boardgamedesigner');
     const publishers = filterElementsByTagName(link, 'boardgamepublisher');
+    const mechanics = filterElementsByTagName(link, 'boardgamemechanic');
+    const isExpansionFor = findBaseGames(link);
 
     const formattedResponse = {
-      name: item.name[0].value,
+      name: Array.isArray(item.name) ? item.name[0].value : item.name.value,
       thumbnail: item.thumbnail,
       description: item.description,
       yearPublished: item.yearpublished.value,
@@ -55,6 +63,9 @@ export class BggService {
       maxPlaytime: item.maxplaytime.value,
       designers,
       publishers,
+      mechanics,
+      isExpansion: !!isExpansionFor.length,
+      isExpansionFor,
     };
 
     return formattedResponse;

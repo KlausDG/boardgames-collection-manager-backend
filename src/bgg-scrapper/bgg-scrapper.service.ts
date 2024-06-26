@@ -29,16 +29,20 @@ export class BggScrapperService {
         else interceptedRequest.continue();
       });
 
-      await page.goto(`https://boardgamegeek.com/boardgame/${gameId}`);
+      const url = `https://boardgamegeek.com/boardgame/${gameId}`;
+
+      await page.goto(url);
 
       const bestPlayersCount = await scrapeBestGamePlayerCount(page);
       const weight = await scrapeGameWeight(page);
+
       const rank = await scrapeGameRank(page);
 
       return {
         bestPlayersCount,
         weight,
         rank,
+        link: url,
       };
     } catch (error) {
       throw new Error('Error scraping external page');

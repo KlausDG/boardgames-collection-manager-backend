@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 
 import { AuthModule } from './auth/auth.module';
 import { BggScrapperModule } from './bgg-scrapper/bgg-scrapper.module';
@@ -7,10 +8,10 @@ import { BggModule } from './bgg/bgg.module';
 import { BoardgameModule } from './boardgame/boardgame.module';
 import { DesignerModule } from './designer/designer.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { SleeveToBoardgameModule } from './sleeve-to-boardgame/sleeve-to-boardgame.module';
-import { SleevesModule } from './sleeves/sleeves.module';
-import { PublisherService } from './publisher/publisher.service';
 import { PublisherModule } from './publisher/publisher.module';
+import { PublisherService } from './publisher/publisher.service';
+import { SleevesModule } from './sleeves/sleeves.module';
+import { PrismaExceptionFilter } from './utils/filters';
 
 @Module({
   imports: [
@@ -24,9 +25,11 @@ import { PublisherModule } from './publisher/publisher.module';
     BggModule,
     BggScrapperModule,
     SleevesModule,
-    SleeveToBoardgameModule,
     PublisherModule,
   ],
-  providers: [PublisherService],
+  providers: [
+    PublisherService,
+    { provide: APP_FILTER, useClass: PrismaExceptionFilter },
+  ],
 })
 export class AppModule {}

@@ -13,27 +13,36 @@ model Boardgame {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name            String              @unique
-  thumbnail       String
-  description     String?
-  yearPublished   String?
-  language        String?
-  minPlayers      Int?                @default(1)
-  maxPlayers      Int?
-  bestPlayerCount Int?
-  minPlaytime     Int?
-  maxPlaytime     Int?
-  weight          Float?
-  bggRank         Int?
-  bggLink         String?
-  inCollection    Boolean             @default(true)
-  category        BoardgameCategories @default(BASE)
-  purchasedValue  Float?
+  name                String              @unique
+  thumbnail           String
+  description         String?
+  yearPublished       Int?
+  language            String?
+  minPlayers          Int?                @default(1)
+  maxPlayers          Int?
+  bestPlayerCount     Int[]
+  minPlaytime         Int?
+  maxPlaytime         Int?
+  weight              Float?
+  languageDependence  LanguageDependences
+  mechanics           String[]
+  bggRank             Int?
+  bggLink             String?
+  bggId               Int                 @unique
+  inCollection        Boolean             @default(true)
+  category            BoardgameCategories @default(STANDALONE)
+  purchasedValue      Float?
+  isExpansion         Boolean             @default(false)
+  isExpansionFor      Boardgame?          @relation("ExpansionFor", fields: [isExpansionForBggId], references: [bggId])
+  isExpansionForBggId Int?
 
-  designers Designer[]
-  publishers Publisher[]
+  designers   Designer[]
+  publisher   Publisher  @relation(fields: [publisherId], references: [id])
+  publisherId Int
 
-  sleeves SleeveToBoardgame[]
+  sleeveRequirements BoardgameSleeveRequirement[] @relation("BoardgameRequirement")
+
+  expansions Boardgame[] @relation("ExpansionFor")
 
   @@map("boardgames")
 }
@@ -62,42 +71,62 @@ model Publisher {
   @@map("publishers")
 }
 
-model Sleeve {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model SleeveSize {
+  id       Int             @id @default(autoincrement())
+  name     String          @unique
+  width    Float
+  height   Float
+  products SleeveProduct[]
 
-  brand       String
-  type        String
-  width       Float
-  height      Float
-  category    SleeveCategories? @default(REGULAR)
-  amountOwned Int
-
-  boardgame SleeveToBoardgame[]
-
-  @@unique([brand, type, category])
+  sleeveRequirements BoardgameSleeveRequirement[] @relation("SleeveSizeRequirement")
 }
 
-model SleeveToBoardgame {
-  id          Int @id @default(autoincrement())
-  boardgameId Int
-  sleeveId    Int
+model SleeveStock {
+  id        Int           @id @default(autoincrement())
+  productId Int
+  product   SleeveProduct @relation(fields: [productId], references: [id])
+  amount    Int
+}
 
-  amount Int @default(0)
+model SleeveProduct {
+  id             Int              @id @default(autoincrement())
+  brandId        Int
+  brand          SleeveBrand      @relation(fields: [brandId], references: [id])
+  sizeId         Int
+  size           SleeveSize       @relation(fields: [sizeId], references: [id])
+  category       SleeveCategories
+  sleevesPerPack Int
+  stocks         SleeveStock[]
+}
 
-  boardgame Boardgame @relation(fields: [boardgameId], references: [id])
-  sleeve    Sleeve    @relation(fields: [sleeveId], references: [id])
+model SleeveBrand {
+  id       Int             @id @default(autoincrement())
+  name     String          @unique
+  products SleeveProduct[]
+}
 
-  @@unique([boardgameId, sleeveId])
+model BoardgameSleeveRequirement {
+  id           Int        @id @default(autoincrement())
+  amount       Int
+  boardgameId  Int
+  sleeveSizeId Int
+  boardgame    Boardgame  @relation("BoardgameRequirement", fields: [boardgameId], references: [id])
+  sleeveSize   SleeveSize @relation("SleeveSizeRequirement", fields: [sleeveSizeId], references: [id])
 }
 
 enum BoardgameCategories {
-  BASE
+  STANDALONE
   EXPANSION
   ADDON
   EXTRA
   ACCESSORY
+}
+
+enum LanguageDependences {
+  NO
+  LOW
+  MODERATE
+  HIGH
 }
 
 enum SleeveCategories {

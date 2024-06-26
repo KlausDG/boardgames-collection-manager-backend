@@ -6,5 +6,7 @@ export const scrapeGameRank = async (browserPage: Page) => {
     return container ? container?.innerText : null;
   });
 
-  return rankValue ? Number(rankValue) : null;
+  const cleanedRank = rankValue?.replace(',', '');
+
+  return rankValue ? parseInt(cleanedRank) : null;
 };

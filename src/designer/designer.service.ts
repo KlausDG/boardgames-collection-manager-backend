@@ -6,6 +6,15 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DesignerService {
   constructor(private prisma: PrismaService) {}
 
+  getDesigners() {
+    return this.prisma.designer.findMany({
+      select: {
+        name: true,
+        id: true,
+      },
+    });
+  }
+
   async findOrCreateDesigners(designersNames: Array<string>) {
     const designers = [];
 

@@ -8,7 +8,7 @@ export const scrapeBestGamePlayerCount = async (browserPage: Page) => {
     return container ? container?.innerText : null;
   });
 
-  return bestPlayersValue
+  return !bestPlayersValue.includes('none')
     ? bestPlayersValue
         .replace('— Best: ', '')
         .split('–')

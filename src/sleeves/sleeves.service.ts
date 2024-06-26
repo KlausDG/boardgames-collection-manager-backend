@@ -1,73 +1,116 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { connectWithId } from '@/utils';
+import { Injectable } from '@nestjs/common';
+import { SleeveCategories } from '@prisma/client';
 
-import { CreateSleeveDto, EditSleeveDto } from './dto';
-import { SleeveOrderBy } from './types';
+import { CreateSleeveSizeDto, SleevePacksDto, SleeveProductDto } from './dto';
 
 @Injectable()
 export class SleevesService {
   constructor(private prisma: PrismaService) {}
 
-  async createSleeve(dto: CreateSleeveDto) {
-    try {
-      const { amount, ...otherDtoFields } = dto;
+  async addSleevePacks({ productId, packs }: SleevePacksDto) {
+    const existingStock = await this.prisma.sleeveStock.findFirst({
+      where: {
+        productId,
+      },
+    });
 
-      const sleeve = await this.prisma.sleeve.create({
+    if (existingStock) {
+      await this.prisma.sleeveStock.update({
+        where: { id: existingStock.id },
         data: {
-          amountOwned: amount,
-          ...otherDtoFields,
+          amount: existingStock.amount + packs,
         },
       });
-
-      return sleeve;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Already in the Database');
-        }
-      }
+    } else {
+      await this.prisma.sleeveStock.create({
+        data: {
+          productId,
+          amount: packs,
+        },
+      });
     }
   }
 
-  getSleeves(orderBy?: SleeveOrderBy) {
-    return this.prisma.sleeve.findMany({
-      orderBy,
+  async createSleeveSize(dto: CreateSleeveSizeDto) {
+    try {
+      const sleeveSize = await this.prisma.sleeveSize.create({
+        data: dto,
+      });
+
+      return sleeveSize;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  getSleeveSizes() {
+    return this.prisma.sleeveSize.findMany({
       include: {
-        boardgame: true,
+        sleeveRequirements: true,
+        products: true,
       },
     });
   }
 
-  getSleevesByBrand(brand: string) {
-    return this.prisma.sleeve.findMany({
-      where: {
-        brand: { contains: brand },
+  async createSleeveProduct({
+    brand,
+    sizeId,
+    ...otherDtoFields
+  }: SleeveProductDto) {
+    console.log();
+
+    try {
+      const sleeveProduct = await this.prisma.sleeveProduct.create({
+        data: {
+          brand: {
+            connectOrCreate: {
+              where: { name: brand },
+              create: { name: brand },
+            },
+          },
+          size: connectWithId(sizeId),
+          ...otherDtoFields,
+        },
+        include: {
+          brand: true,
+          size: true,
+        },
+      });
+
+      return sleeveProduct;
+    } catch (error) {
+      console.log(error);
+
+      throw error;
+    }
+  }
+
+  getSleeveProducts() {
+    return this.prisma.sleeveProduct.findMany({
+      orderBy: {
+        brand: { name: 'asc' },
       },
-      orderBy: { brand: 'asc' },
+      include: {
+        brand: true,
+        size: true,
+      },
     });
   }
 
-  getSleevesByType(type: string) {
-    return this.prisma.sleeve.findMany({
-      where: {
-        type,
+  getSleeveBrands() {
+    return this.prisma.sleeveBrand.findMany({
+      orderBy: {
+        name: 'asc',
       },
-      orderBy: { type: 'asc' },
+      include: {
+        products: true,
+      },
     });
   }
 
-  editSleeveById(sleeveId: number, dto: EditSleeveDto) {
-    const { amount, ...otherDtoFields } = dto;
-
-    return this.prisma.sleeve.update({
-      where: {
-        id: sleeveId,
-      },
-      data: {
-        amountOwned: amount,
-        ...otherDtoFields,
-      },
-    });
+  getSleeveCategories() {
+    return Object.values(SleeveCategories);
   }
 }
