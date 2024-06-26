@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 
-import { CreateSleeveDto, CreateSleeveTypeDto } from './dto';
+import { CreateSleeveSizeDto, SleevePacksDto, SleeveProductDto } from './dto';
 import { SleevesService } from './sleeves.service';
 
 // @UseGuards(AuthGuard)
@@ -9,22 +9,37 @@ export class SleevesController {
   constructor(private sleevesService: SleevesService) {}
 
   @Post('add-packs')
-  createSleeve(@Body() dto: CreateSleeveDto) {
+  createSleeve(@Body() dto: SleevePacksDto) {
     return this.sleevesService.addSleevePacks(dto);
   }
 
-  @Post('types')
-  createSleeveType(@Body() dto: CreateSleeveTypeDto) {
-    return this.sleevesService.createSleeveType(dto);
+  @Post('sizes')
+  createSleeveSize(@Body() dto: CreateSleeveSizeDto) {
+    return this.sleevesService.createSleeveSize(dto);
   }
 
-  @Get('types')
-  getSleeveTypes() {
-    return this.sleevesService.getSleeveTypes();
+  @Get('sizes')
+  getSleeveSizes() {
+    return this.sleevesService.getSleeveSizes();
   }
 
   @Get('brands')
   getSleeveBrands() {
     return this.sleevesService.getSleeveBrands();
+  }
+
+  @Get('categories')
+  getSleeveCategories() {
+    return this.sleevesService.getSleeveCategories();
+  }
+
+  @Post('products')
+  createSleeveProduct(@Body() dto: SleeveProductDto) {
+    return this.sleevesService.createSleeveProduct(dto);
+  }
+
+  @Get('products')
+  getSleeveProducts() {
+    return this.sleevesService.getSleeveProducts();
   }
 }

@@ -49,6 +49,7 @@ export class BggService {
 
     const designers = filterElementsByTagName(link, 'boardgamedesigner');
     const publishers = filterElementsByTagName(link, 'boardgamepublisher');
+    const mechanics = filterElementsByTagName(link, 'boardgamemechanic');
     const isExpansionFor = findBaseGames(link);
 
     const formattedResponse = {
@@ -62,6 +63,7 @@ export class BggService {
       maxPlaytime: item.maxplaytime.value,
       designers,
       publishers,
+      mechanics,
       isExpansion: !!isExpansionFor.length,
       isExpansionFor,
     };

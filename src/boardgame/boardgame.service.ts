@@ -175,7 +175,7 @@ export class BoardgameService {
       include: {
         sleeveRequirements: {
           include: {
-            sleeveType: true,
+            sleeveSize: true,
           },
         },
       },
@@ -186,12 +186,13 @@ export class BoardgameService {
     }
 
     for (const requirement of boardgame.sleeveRequirements) {
-      const { sleeveType, amount } = requirement;
+      const { sleeveSize, amount } = requirement;
 
-      // Check if there's enough stock for each requirement without mixing brands, types, or categories
       const sufficientStock = await this.prisma.sleeveStock.findMany({
         where: {
-          sleeveTypeId: sleeveType.id,
+          product: {
+            id: sleeveSize.id,
+          },
           amount: { gte: amount },
         },
       });

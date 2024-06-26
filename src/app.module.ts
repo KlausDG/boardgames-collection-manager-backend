@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 
 import { AuthModule } from './auth/auth.module';
 import { BggScrapperModule } from './bgg-scrapper/bgg-scrapper.module';
@@ -10,6 +11,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PublisherModule } from './publisher/publisher.module';
 import { PublisherService } from './publisher/publisher.service';
 import { SleevesModule } from './sleeves/sleeves.module';
+import { PrismaExceptionFilter } from './utils/filters';
 
 @Module({
   imports: [
@@ -25,6 +27,9 @@ import { SleevesModule } from './sleeves/sleeves.module';
     SleevesModule,
     PublisherModule,
   ],
-  providers: [PublisherService],
+  providers: [
+    PublisherService,
+    { provide: APP_FILTER, useClass: PrismaExceptionFilter },
+  ],
 })
 export class AppModule {}

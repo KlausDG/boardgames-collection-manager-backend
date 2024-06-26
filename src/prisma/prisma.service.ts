@@ -19,7 +19,7 @@ export class PrismaService extends PrismaClient {
       this.boardgame.deleteMany(),
       this.sleeveStock.deleteMany(),
       this.sleeveBrand.deleteMany(),
-      this.sleeveType.deleteMany(),
+      this.sleeveSize.deleteMany(),
     ]);
   }
 }

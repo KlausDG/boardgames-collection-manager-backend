@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
-export class CreateSleeveTypeDto {
+export class CreateSleeveSizeDto {
   @IsString()
   @IsNotEmpty()
-  type: string;
+  name: string;
 
   @IsNumber()
   @Min(1)
