@@ -1,3 +1,6 @@
+import { Express } from 'express';
+import { diskStorage } from 'multer';
+
 import {
   Body,
   Controller,
@@ -7,7 +10,10 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { BoardgameService } from './boardgame.service';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
@@ -20,6 +26,18 @@ export class BoardgameController {
   @Post()
   createBoardgame(@Body() dto: CreateBoardgameDto) {
     return this.boardgameService.createBoardgame(dto);
+  }
+
+  @Post('batch')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: '../../uploads',
+      }),
+    }),
+  )
+  createBoardgameBatch(@UploadedFile() file: Express.Multer.File) {
+    return this.boardgameService.createBoardgameBatch(file);
   }
 
   @Get()
