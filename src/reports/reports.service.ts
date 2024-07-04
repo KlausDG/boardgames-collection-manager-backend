@@ -6,7 +6,7 @@ import { Prisma } from '@prisma/client';
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  getTotalPurchasedPrice() {
+  getPurchasedPriceReport() {
     const purchasedPrice: Prisma.BoardgameMaxAggregateInputType = {
       purchasedPrice: true,
     };
