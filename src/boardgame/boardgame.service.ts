@@ -1,15 +1,5 @@
-import csv from 'csv-parser';
-import { createReadStream } from 'fs';
-
-import { BggService } from '@/bgg/bgg.service';
 import { selectBaseFields } from '@/utils';
-import {
-  convertCommaToDot,
-  convertToArray,
-  delay,
-  roundDecimal,
-  stringToNumber,
-} from '@/utils/helpers';
+import { convertToArray } from '@/utils/helpers';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -18,6 +8,7 @@ import { DesignerService } from '../designer/designer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PublisherService } from '../publisher/publisher.service';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
+import { BoardgameFilters } from './types';
 
 interface IsExpansionForInput {
   connect: {
@@ -44,7 +35,6 @@ export class BoardgameService {
     private prisma: PrismaService,
     private designerService: DesignerService,
     private publisherService: PublisherService,
-    private bggService: BggService,
   ) {}
 
   async createBoardgame(dto: CreateBoardgameDto) {
@@ -116,10 +106,6 @@ export class BoardgameService {
 
       return boardgame;
     } catch (error) {
-      console.log(error.message);
-
-      throw error;
-
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Already in the Database');
@@ -128,93 +114,25 @@ export class BoardgameService {
     }
   }
 
-  createBoardgameBatch = (file: Express.Multer.File) => {
-    const results = [];
+  async getBoardgames(filter: BoardgameFilters) {
+    const filterValue = filter.isLinked
+      ? { some: { name: filter.value } }
+      : filter.value;
 
-    return new Promise((resolve, reject) => {
-      createReadStream(file.path)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', async () => {
-          try {
-            const batchSize = 10;
-            const delayTime = 300;
-            const formattedData = [];
-
-            for (let i = 0; i < results.length; i += batchSize) {
-              const batch = results.slice(i, i + batchSize);
-
-              const batchResults = await Promise.all(
-                batch.map(async (item) => {
-                  const bggData =
-                    await this.bggService.findBoardGameDetailsById(
-                      item.objectid,
-                    );
-
-                  return {
-                    name: item.objectname,
-                    bggId: stringToNumber(item.objectid),
-                    bggLink: `https://boardgamegeek.com/boardgame/${item.objectid}`,
-                    language: item.language,
-                    thumbnail: bggData.thumbnail,
-                    designers: bggData.designers,
-                    publisher: bggData.publishers[0],
-                    mechanics: bggData.mechanics,
-                    description: bggData.description,
-                    yearPublished: bggData.yearPublished,
-                    minPlayers: bggData.minPlayers,
-                    maxPlayers: bggData.maxPlayers,
-                    minPlaytime: bggData.minPlaytime,
-                    maxPlaytime: bggData.maxPlaytime,
-                    isExpansion: bggData.isExpansion,
-                    isExpansionForBggId: stringToNumber(item.isexpansionfor),
-                    purchasedPrice: stringToNumber(
-                      convertCommaToDot(item.purchasedprice),
-                    ),
-                    languageDependence: item.bgglanguagedependence,
-                    weight: roundDecimal(stringToNumber(item.avgweight)),
-                    recPlayerCount: item.bggrecplayers,
-                    bestPlayerCount: item.bggbestplayers,
-                    bggRank: stringToNumber(item.rank),
-                    category: item.itemtype.toUpperCase(),
-                  };
-                }),
-              );
-
-              formattedData.push(...batchResults);
-              await delay(delayTime);
-            }
-
-            const sortedData = formattedData.sort((a, b) => {
-              if (a.isExpansionForBggId === null) return -1;
-              if (b.isExpansionForBggId === null) return 1;
-              return 0;
-            });
-
-            //add each item from formattedData to prisma here
-            sortedData.forEach(
-              async (item) => await this.createBoardgame(item),
-            );
-
-            resolve(formattedData);
-          } catch (error) {
-            reject(error);
-          }
-        })
-        .on('error', (error) => reject(error + 'error'));
-    });
-  };
-
-  async getBoardgames(type: 'basegame' | 'expansion') {
     const boardgames = await this.prisma.boardgame.findMany({
       where: {
-        isExpansion: type === 'expansion' ? true : false,
+        category: 'STANDALONE',
+        [filter.key]: filterValue,
+      },
+      orderBy: {
+        bggRank: 'asc',
       },
       include: {
         designers: selectBaseFields(),
         publisher: selectBaseFields(),
         expansions: true,
         sleeveRequirements: true,
+        mechanics: true,
       },
     });
     return boardgames.map((game) => {
@@ -233,6 +151,7 @@ export class BoardgameService {
         publisher: selectBaseFields(),
         expansions: true,
         sleeveRequirements: true,
+        mechanics: selectBaseFields(),
       },
     });
   }

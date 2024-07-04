@@ -12,6 +12,7 @@ import { PublisherModule } from './publisher/publisher.module';
 import { PublisherService } from './publisher/publisher.service';
 import { SleevesModule } from './sleeves/sleeves.module';
 import { PrismaExceptionFilter } from './utils/filters';
+import { MechanicsModule } from './mechanics/mechanics.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PrismaExceptionFilter } from './utils/filters';
     BggScrapperModule,
     SleevesModule,
     PublisherModule,
+    MechanicsModule,
   ],
   providers: [
     PublisherService,

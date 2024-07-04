@@ -13,6 +13,7 @@ import {
 const prisma = new PrismaClient();
 
 async function main() {
+  // const seedDataPath = path.join(__dirname, 'standalones.json');
   const seedDataPath = path.join(__dirname, 'expansions.json');
   const seedData = JSON.parse(fs.readFileSync(seedDataPath, 'utf-8'));
 
@@ -39,6 +40,7 @@ async function main() {
     const payload: any = {
       name: item.name,
       bggId: item.bggId,
+      bggLink: item.bggLink,
       language: item.language,
       thumbnail: item.thumbnail,
       designers: { connectOrCreate: designersStructure },

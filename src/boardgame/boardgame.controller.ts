@@ -1,6 +1,3 @@
-import { Express } from 'express';
-import { diskStorage } from 'multer';
-
 import {
   Body,
   Controller,
@@ -10,13 +7,11 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 import { BoardgameService } from './boardgame.service';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
+import { BoardgameFilterKeys } from './types';
 
 // @UseGuards(AuthGuard)
 @Controller('boardgames')
@@ -28,21 +23,13 @@ export class BoardgameController {
     return this.boardgameService.createBoardgame(dto);
   }
 
-  @Post('batch')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: '../../uploads',
-      }),
-    }),
-  )
-  createBoardgameBatch(@UploadedFile() file: Express.Multer.File) {
-    return this.boardgameService.createBoardgameBatch(file);
-  }
-
   @Get()
-  getBoardgames(@Query('filter') filter: 'basegame' | 'expansion') {
-    return this.boardgameService.getBoardgames(filter);
+  getBoardgames(
+    @Query('key') key?: BoardgameFilterKeys,
+    @Query('value') value?: string,
+    @Query('isLinked') isLinked?: boolean,
+  ) {
+    return this.boardgameService.getBoardgames({ key, value, isLinked });
   }
 
   @Get(':id')
