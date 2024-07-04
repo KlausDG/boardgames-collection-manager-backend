@@ -13,6 +13,7 @@ import { PublisherService } from './publisher/publisher.service';
 import { SleevesModule } from './sleeves/sleeves.module';
 import { PrismaExceptionFilter } from './utils/filters';
 import { MechanicsModule } from './mechanics/mechanics.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MechanicsModule } from './mechanics/mechanics.module';
     SleevesModule,
     PublisherModule,
     MechanicsModule,
+    ReportsModule,
   ],
   providers: [
     PublisherService,
