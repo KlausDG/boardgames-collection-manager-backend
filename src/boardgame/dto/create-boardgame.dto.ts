@@ -50,8 +50,10 @@ export class CreateBoardgameDto {
   maxPlayers?: number;
 
   @IsString()
-  @IsNotEmpty()
-  bestPlayerCount: string;
+  bestPlayerCount?: string;
+
+  @IsString()
+  recPlayerCount?: string;
 
   @IsNumber()
   @IsOptional()

@@ -1,4 +1,5 @@
 import { selectBaseFields } from '@/utils';
+import { convertToArray } from '@/utils/helpers';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -7,6 +8,7 @@ import { DesignerService } from '../designer/designer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PublisherService } from '../publisher/publisher.service';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
+import { BoardgameFilters } from './types';
 
 interface IsExpansionForInput {
   connect: {
@@ -22,6 +24,7 @@ interface CreateBoardgameData {
     connect: Prisma.PublisherWhereUniqueInput;
   };
   bestPlayerCount: number[];
+  recPlayerCount: number[];
   isExpansion: boolean;
   isExpansionFor?: IsExpansionForInput;
 }
@@ -40,14 +43,14 @@ export class BoardgameService {
         designers,
         publisher,
         bestPlayerCount: bestPlayerCountString,
+        recPlayerCount: recPlayerCountString,
         isExpansion,
         isExpansionForBggId,
         ...otherDtoFields
       } = dto;
 
-      const bestPlayerCount = bestPlayerCountString
-        .split(', ')
-        .map((item) => Number(item));
+      const bestPlayerCount = convertToArray(bestPlayerCountString);
+      const recPlayerCount = convertToArray(recPlayerCountString);
 
       const designersDbData =
         await this.designerService.findOrCreateDesigners(designers);
@@ -55,26 +58,40 @@ export class BoardgameService {
       const publisherDbData =
         await this.publisherService.findOrCreatePublisher(publisher);
 
-      const boardgameData: CreateBoardgameData = {
-        designers: {
+      const connectData = {} as CreateBoardgameData;
+
+      if (!!designersDbData) {
+        connectData.designers = {
           connect: designersDbData.map((designer) => ({ id: designer.id })),
-        },
-        publisher: {
+        };
+      }
+
+      if (!!publisherDbData?.id) {
+        connectData.publisher = {
           connect: {
             id: publisherDbData.id,
           },
-        },
+        };
+      }
+
+      const boardgameData: CreateBoardgameData = {
+        ...connectData,
         bestPlayerCount,
+        recPlayerCount,
         isExpansion,
         ...otherDtoFields,
       };
 
       if (isExpansion && isExpansionForBggId) {
-        boardgameData.isExpansionFor = {
-          connect: {
-            bggId: isExpansionForBggId,
-          },
-        };
+        const baseGame = await this.getBoardgameByBggId(isExpansionForBggId);
+
+        if (baseGame.inDatabase) {
+          boardgameData.isExpansionFor = {
+            connect: {
+              bggId: isExpansionForBggId,
+            },
+          };
+        }
       }
 
       const boardgame = await this.prisma.boardgame.create({
@@ -97,16 +114,25 @@ export class BoardgameService {
     }
   }
 
-  async getBoardgames(type: 'basegame' | 'expansion') {
+  async getBoardgames(filter: BoardgameFilters) {
+    const filterValue = filter.isLinked
+      ? { some: { name: filter.value } }
+      : filter.value;
+
     const boardgames = await this.prisma.boardgame.findMany({
       where: {
-        isExpansion: type === 'expansion' ? true : false,
+        category: 'STANDALONE',
+        [filter.key]: filterValue,
+      },
+      orderBy: {
+        bggRank: 'asc',
       },
       include: {
         designers: selectBaseFields(),
         publisher: selectBaseFields(),
         expansions: true,
         sleeveRequirements: true,
+        mechanics: true,
       },
     });
     return boardgames.map((game) => {
@@ -125,6 +151,7 @@ export class BoardgameService {
         publisher: selectBaseFields(),
         expansions: true,
         sleeveRequirements: true,
+        mechanics: selectBaseFields(),
       },
     });
   }

@@ -12,11 +12,12 @@ export class ValidationExceptionFilter implements ExceptionFilter {
   catch(exception: BadRequestException, host: ArgumentsHost) {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
+    
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse() as
       | string
       | { message: any; error: string };
-
+    
     let validationErrors = [];
 
     if (

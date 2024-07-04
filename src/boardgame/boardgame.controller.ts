@@ -11,6 +11,7 @@ import {
 
 import { BoardgameService } from './boardgame.service';
 import { CreateBoardgameDto, EditBoardgameDto } from './dto';
+import { BoardgameFilterKeys } from './types';
 
 // @UseGuards(AuthGuard)
 @Controller('boardgames')
@@ -23,8 +24,12 @@ export class BoardgameController {
   }
 
   @Get()
-  getBoardgames(@Query('filter') filter: 'basegame' | 'expansion') {
-    return this.boardgameService.getBoardgames(filter);
+  getBoardgames(
+    @Query('key') key?: BoardgameFilterKeys,
+    @Query('value') value?: string,
+    @Query('isLinked') isLinked?: boolean,
+  ) {
+    return this.boardgameService.getBoardgames({ key, value, isLinked });
   }
 
   @Get(':id')

@@ -21,28 +21,29 @@ model Boardgame {
   minPlayers          Int?                @default(1)
   maxPlayers          Int?
   bestPlayerCount     Int[]
+  recPlayerCount      Int[]
   minPlaytime         Int?
   maxPlaytime         Int?
   weight              Float?
   languageDependence  LanguageDependences
-  mechanics           String[]
   bggRank             Int?
   bggLink             String?
   bggId               Int                 @unique
   inCollection        Boolean             @default(true)
   category            BoardgameCategories @default(STANDALONE)
-  purchasedValue      Float?
+  purchasedPrice      Float?
   isExpansion         Boolean             @default(false)
   isExpansionFor      Boardgame?          @relation("ExpansionFor", fields: [isExpansionForBggId], references: [bggId])
   isExpansionForBggId Int?
 
   designers   Designer[]
+  mechanics   Mechanics[]
   publisher   Publisher  @relation(fields: [publisherId], references: [id])
   publisherId Int
 
   sleeveRequirements BoardgameSleeveRequirement[] @relation("BoardgameRequirement")
 
-  expansions Boardgame[] @relation("ExpansionFor")
+  expansions  Boardgame[] @relation("ExpansionFor")
 
   @@map("boardgames")
 }
@@ -69,6 +70,17 @@ model Publisher {
   boardgames Boardgame[]
 
   @@map("publishers")
+}
+
+model Mechanics {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+
+  boardgames Boardgame[]
+
+  @@map("mechanics")
 }
 
 model SleeveSize {

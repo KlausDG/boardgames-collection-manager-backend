@@ -42,6 +42,7 @@ export class BggService {
   }
 
   async findBoardGameDetailsById(id: number) {
+    // await delay(4000);
     const apiResult = await getBggThing({ id });
 
     const item = apiResult.item as BggBoardgameItem;
