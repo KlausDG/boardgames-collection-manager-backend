@@ -10,4 +10,9 @@ export class ReportsController {
   getPurchasedPriceReport() {
     return this.reportsService.getPurchasedPriceReport();
   }
+
+  @Get('game-weight')
+  getGameWeightReport() {
+    return this.reportsService.getGameWeightReport();
+  }
 }
