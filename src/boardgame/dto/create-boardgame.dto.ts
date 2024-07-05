@@ -41,6 +41,10 @@ export class CreateBoardgameDto {
   @IsOptional()
   language?: string;
 
+  @IsString()
+  @IsNotEmpty()
+  languageDependence: string;
+
   @IsNumber()
   @IsOptional()
   minPlayers?: number;
@@ -52,9 +56,6 @@ export class CreateBoardgameDto {
   @IsString()
   bestPlayerCount?: string;
 
-  @IsString()
-  recPlayerCount?: string;
-
   @IsNumber()
   @IsOptional()
   minPlaytime?: number;
@@ -65,7 +66,7 @@ export class CreateBoardgameDto {
 
   @IsNumber()
   @IsOptional()
-  purchasedValue?: number;
+  purchasedPrice?: number;
 
   @IsNumber()
   @IsOptional()

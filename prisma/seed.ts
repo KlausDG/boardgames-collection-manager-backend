@@ -13,8 +13,8 @@ import {
 const prisma = new PrismaClient();
 
 async function main() {
-  // const seedDataPath = path.join(__dirname, 'standalones.json');
-  const seedDataPath = path.join(__dirname, 'expansions.json');
+  const seedDataPath = path.join(__dirname, 'standalones.json');
+  // const seedDataPath = path.join(__dirname, 'expansions.json');
   const seedData = JSON.parse(fs.readFileSync(seedDataPath, 'utf-8'));
 
   for (const item of seedData) {
@@ -56,7 +56,6 @@ async function main() {
       purchasedPrice: stringToNumber(convertCommaToDot(item.purchasedPrice)),
       languageDependence: item.languageDependence,
       weight: roundDecimal(item.weight),
-      recPlayerCount: convertToArray(item.recPlayerCount),
       bestPlayerCount: convertToArray(item.bestPlayerCount),
       bggRank: item.bggRank,
       category: item.category,

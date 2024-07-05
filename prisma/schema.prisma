@@ -21,7 +21,6 @@ model Boardgame {
   minPlayers          Int?                @default(1)
   maxPlayers          Int?
   bestPlayerCount     Int[]
-  recPlayerCount      Int[]
   minPlaytime         Int?
   maxPlaytime         Int?
   weight              Float?

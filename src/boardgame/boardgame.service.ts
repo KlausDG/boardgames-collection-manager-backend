@@ -24,7 +24,6 @@ interface CreateBoardgameData {
     connect: Prisma.PublisherWhereUniqueInput;
   };
   bestPlayerCount: number[];
-  recPlayerCount: number[];
   isExpansion: boolean;
   isExpansionFor?: IsExpansionForInput;
 }
@@ -43,14 +42,12 @@ export class BoardgameService {
         designers,
         publisher,
         bestPlayerCount: bestPlayerCountString,
-        recPlayerCount: recPlayerCountString,
         isExpansion,
         isExpansionForBggId,
         ...otherDtoFields
       } = dto;
 
       const bestPlayerCount = convertToArray(bestPlayerCountString);
-      const recPlayerCount = convertToArray(recPlayerCountString);
 
       const designersDbData =
         await this.designerService.findOrCreateDesigners(designers);
@@ -77,10 +74,11 @@ export class BoardgameService {
       const boardgameData: CreateBoardgameData = {
         ...connectData,
         bestPlayerCount,
-        recPlayerCount,
         isExpansion,
         ...otherDtoFields,
       };
+
+      console.log(boardgameData);
 
       if (isExpansion && isExpansionForBggId) {
         const baseGame = await this.getBoardgameByBggId(isExpansionForBggId);
@@ -106,11 +104,15 @@ export class BoardgameService {
 
       return boardgame;
     } catch (error) {
+      // console.log(error);
+
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Already in the Database');
         }
       }
+
+      throw error;
     }
   }
 

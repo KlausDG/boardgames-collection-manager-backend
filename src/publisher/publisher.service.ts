@@ -11,8 +11,6 @@ export class PublisherService {
       where: { name: publisher },
     });
 
-    console.log(existingPublisher);
-
     if (!existingPublisher) {
       existingPublisher = await this.prisma.publisher.create({
         data: {
