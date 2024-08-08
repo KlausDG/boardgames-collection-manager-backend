@@ -6,15 +6,57 @@ import { Prisma } from '@prisma/client';
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  getPurchasedPriceReport() {
+  async getPurchasedPriceReport() {
     const purchasedPrice: Prisma.BoardgameMaxAggregateInputType = {
       purchasedPrice: true,
     };
 
-    return this.prisma.boardgame.aggregate({
+    const standalonesData = await this.prisma.boardgame.aggregate({
       _sum: purchasedPrice,
       _avg: purchasedPrice,
+      where: {
+        isExpansion: false,
+        purchasedPrice: {
+          not: 0,
+        },
+      },
     });
+
+    const expansionsData = await this.prisma.boardgame.aggregate({
+      _sum: purchasedPrice,
+      _avg: purchasedPrice,
+      where: {
+        isExpansion: true,
+        purchasedPrice: {
+          not: 0,
+        },
+      },
+    });
+
+    const allGameData = await this.prisma.boardgame.aggregate({
+      _sum: purchasedPrice,
+      _avg: purchasedPrice,
+      where: {
+        purchasedPrice: {
+          gt: 0,
+        },
+      },
+    });
+
+    const freeGames = await this.prisma.boardgame.count({
+      where: {
+        purchasedPrice: {
+          equals: 0,
+        },
+      },
+    });
+
+    return {
+      standalones: standalonesData,
+      expansions: expansionsData,
+      condensed: allGameData,
+      free: freeGames,
+    };
   }
 
   async getGameWeightReport() {
@@ -28,7 +70,7 @@ export class ReportsService {
       _max: weight,
       where: {
         weight: {
-          not: 0,
+          gt: 0,
         },
         isExpansion: false,
       },
@@ -71,7 +113,7 @@ export class ReportsService {
       where: {
         weight: {
           gte: x,
-          lte: y,
+          lt: y,
         },
         isExpansion: false,
       },

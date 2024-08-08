@@ -23,6 +23,9 @@ interface CreateBoardgameData {
   publisher: {
     connect: Prisma.PublisherWhereUniqueInput;
   };
+  mechanics: {
+    connectOrCreate: Prisma.MechanicsCreateOrConnectWithoutBoardgamesInput[];
+  };
   bestPlayerCount: number[];
   isExpansion: boolean;
   isExpansionFor?: IsExpansionForInput;
@@ -44,6 +47,7 @@ export class BoardgameService {
         bestPlayerCount: bestPlayerCountString,
         isExpansion,
         isExpansionForBggId,
+        mechanics,
         ...otherDtoFields
       } = dto;
 
@@ -54,6 +58,13 @@ export class BoardgameService {
 
       const publisherDbData =
         await this.publisherService.findOrCreatePublisher(publisher);
+
+      const mechanicsStructure = mechanics.map((name: string) => {
+        return {
+          create: { name },
+          where: { name },
+        };
+      });
 
       const connectData = {} as CreateBoardgameData;
 
@@ -75,10 +86,9 @@ export class BoardgameService {
         ...connectData,
         bestPlayerCount,
         isExpansion,
+        mechanics: { connectOrCreate: mechanicsStructure },
         ...otherDtoFields,
       };
-
-      console.log(boardgameData);
 
       if (isExpansion && isExpansionForBggId) {
         const baseGame = await this.getBoardgameByBggId(isExpansionForBggId);
@@ -104,8 +114,6 @@ export class BoardgameService {
 
       return boardgame;
     } catch (error) {
-      // console.log(error);
-
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Already in the Database');

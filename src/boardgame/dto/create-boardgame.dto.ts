@@ -1,7 +1,9 @@
+import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsDate,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -20,7 +22,7 @@ export class CreateBoardgameDto {
   thumbnail: string;
 
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(0)
   @IsString({ each: true })
   @IsNotEmpty()
   designers: string[];
@@ -68,9 +70,18 @@ export class CreateBoardgameDto {
   @IsOptional()
   purchasedPrice?: number;
 
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  acquisitionDate?: Date;
+
   @IsNumber()
   @IsOptional()
   weight?: number;
+
+  @IsArray()
+  @IsNotEmpty()
+  mechanics: Array<string>;
 
   @IsNumber()
   @IsOptional()
