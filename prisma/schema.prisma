@@ -31,18 +31,19 @@ model Boardgame {
   inCollection        Boolean             @default(true)
   category            BoardgameCategories @default(STANDALONE)
   purchasedPrice      Float?
+  acquisitionDate     DateTime?           @default(now())
   isExpansion         Boolean             @default(false)
   isExpansionFor      Boardgame?          @relation("ExpansionFor", fields: [isExpansionForBggId], references: [bggId])
   isExpansionForBggId Int?
 
   designers   Designer[]
   mechanics   Mechanics[]
-  publisher   Publisher  @relation(fields: [publisherId], references: [id])
+  publisher   Publisher   @relation(fields: [publisherId], references: [id])
   publisherId Int
 
   sleeveRequirements BoardgameSleeveRequirement[] @relation("BoardgameRequirement")
 
-  expansions  Boardgame[] @relation("ExpansionFor")
+  expansions Boardgame[] @relation("ExpansionFor")
 
   @@map("boardgames")
 }
