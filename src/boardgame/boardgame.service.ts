@@ -171,11 +171,42 @@ export class BoardgameService {
       where: {
         bggId,
       },
+      include: {
+        designers: selectBaseFields(),
+        publisher: selectBaseFields(),
+        expansions: true,
+        sleeveRequirements: true,
+        mechanics: selectBaseFields(),
+      },
     });
 
     return {
       inDatabase: !!boardgame,
     };
+  }
+
+  async getBoardgameByBestPlayerCount(playerCount: number) {
+    const boardgames = await this.prisma.boardgame.findMany({
+      where: {
+        bestPlayerCount: {
+          has: playerCount,
+        },
+        isExpansion: false,
+      },
+      include: {
+        designers: selectBaseFields(),
+        publisher: selectBaseFields(),
+        expansions: true,
+        sleeveRequirements: true,
+        mechanics: selectBaseFields(),
+      },
+    });
+
+    return boardgames.sort((a, b) => {
+      if (a.bggRank === 0) return 1;
+      if (b.bggRank === 0) return -1;
+      return a.bggRank - b.bggRank;
+    });
   }
 
   editBoardgameById(boardgameId: number, dto: EditBoardgameDto) {

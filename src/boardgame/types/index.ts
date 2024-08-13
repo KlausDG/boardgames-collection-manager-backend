@@ -12,6 +12,6 @@ export type BoardgameFilterKeys = keyof Omit<
 
 export type BoardgameFilters = {
   key?: BoardgameFilterKeys;
-  value?: string;
+  value?: string | number;
   isLinked?: boolean;
 };
