@@ -1,0 +1,51 @@
+<html lang='en'>
+
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Document</title>
+    <link
+      href='https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'
+      rel='stylesheet'
+    />
+
+  </head>
+
+  <body>
+    <h1 style="margin-bottom: 24px; text-align: center;">Jogos recomendados para {{players}} jogadores</h1>
+    {{#each boardgames}}
+      <div class='page'>
+        <div class='container'>
+          <div class='informations__container'>
+            <h2><a
+                class='header_row__link'
+                href='{{bggLink}}'
+                target='_blank'
+              >#{{bggRank}}</a>
+              -
+              {{name}}
+              ({{yearPublished}})</h2>
+            <div class='informations_row__container'>
+              <p>{{language}}</p>
+              <div>
+                <p>{{minPlayers}} - {{maxPlayers}} Jogadores</p>
+                <p class='informations_row__subtext'>
+                  <i>Melhor em {{bestPlayerCount}}</i>
+
+                </p>
+              </div>
+              <p>{{minPlaytime}} - {{maxPlaytime}} Minutos</p>
+              <p>Peso: {{weight}} / 5</p>
+            </div>
+          </div>
+          <div>
+            <img src='{{thumbnail}}' alt='{{name}}' style='height: 100px;' />
+
+          </div>
+        </div>
+      </div>
+      {{!-- <div class='page-break'></div> --}}
+    {{/each}}
+  </body>
+
+</html>

@@ -14,6 +14,7 @@ import { SleevesModule } from './sleeves/sleeves.module';
 import { PrismaExceptionFilter } from './utils/filters';
 import { MechanicsModule } from './mechanics/mechanics.module';
 import { ReportsModule } from './reports/reports.module';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReportsModule } from './reports/reports.module';
     PublisherModule,
     MechanicsModule,
     ReportsModule,
+    PdfModule,
   ],
   providers: [
     PublisherService,
